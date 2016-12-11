@@ -16,12 +16,51 @@ Az előfeldolgozó sor 1 képen értelmezett műveletek hajt végre a referencia
 A diszparitás számító sor 2 képen operál és kimenetként egyet szolgáltat.
 Az utófeldolgozó pedig ismét egy képen értelmezett műveleteket támogat, amiket a diszparitásképen hajt végre.
 
+Ahol lehetett és szükséges volt, több szálon futni képes kódot írtam.
+Ez ugyan extra erőfeszítés, de mivel gyakori volt az új algoritmusok tesztelése, ritka volt a hatékony implementáció.
+A kézben tartható futásidőkhöz elengedhetetlen volt a párhuzamosítás.
 
+Kihívást jelentett egy használható, intuitív grafikus felület tervezése.
+Ez részben a rutin hiányának, részben pedig a sok, komplex adat átlátható megjelenítésének igényéből adódott.
 
 %-----------------------------------------------------------------------------------------------
 \section{Programozói interfész}\label{sect:ProgInterface}
 %-----------------------------------------------------------------------------------------------
 
+Az előző féléves munka során tapasztaltam, mekkora nehézséget tud okozni egy nem jól skálázódó, átgondolatlan program struktúra.
+Az akkor elkövetett hibákból tanulva igyekeztem most egy egyszerűen bővíthető, jövőbeni ötletekre is felkészített keretet tervezni.
+
+Első és legfontosabb teendőm volt a felhasználói felület és a feldolgozás szeparálása.
+Ezzel is készülve arra, hogy esetleg a teljes back-end lecserélhető legyen, például egy C++-ban fejlesztett könyvtárra.
+
+%-----------------------------------------------------------------------------------------------
+\subsection{Adatstruktúra}\label{sect:dataStructure}
+%-----------------------------------------------------------------------------------------------
+
+A munka jellegéből adódóan szükségét éreztem, hogy a kimenet a feldolgozási lánc bármely szakaszában megjeleníthető legyen.
+Ezért a minimálisan elvárhatótól több képet tárol a program a memóriában.
+Ennek az emberi vizsgálatokon kívül a feldolgozás során is tapasztalható előnye.
+
+A programban a következő szakaszait tárolja a feldolgozásnak:
+\begin{itemize}[noitemsep]
+	\item Nyers adat
+	\item Nyers referencia
+	\item Előfeldolgozott adat
+	\item Előfeldolgozott referencia
+	\item Nyers diszparitás
+	\item Utófeldolgozott diszparitás
+	\item Vizualizált diszparitás
+\end{itemize}
+
+Az utófeldolgozott és a vizualizált diszparitás szeparált tárolását az indokolja, hogy a vizualizáció során megváltozik az adat jellege: 3 csatornás RGB képet kapunk az egy csatornán tárolt értékek helyett.
+
+Ezek az adatok nem függetlenek egymástól, bizonyos sorrendiségnek fel kell állnia köztük.
+Adódik az igény, hogy a felhasználói felületen bizonyos funkciók csak akkor legyenek elérhetőek, ha a feldolgozás egy része már befejeződött.
+Ennek támogatása céljából lekérhető a fenti pufferek állapota, feltétel állítható be rájuk.
+
+%-----------------------------------------------------------------------------------------------
+\subsection{Feldolgozási lépés}\label{sect:processingStep}
+%-----------------------------------------------------------------------------------------------
 
 
 %-----------------------------------------------------------------------------------------------
