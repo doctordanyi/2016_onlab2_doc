@@ -65,6 +65,13 @@ A szűrőnek 4 lehetséges paramétere van: a két Gauss szűrő kernel mérete 
 \subsection{Hisztogram kiegyenlítés}\label{sect:histNorm}
 %-----------------------------------------------------------------------------------------------
 
+A hisztogram kiegyenlítés ötlete az, hogy a képen belül az összes fényességérték közel azonos mennyiségben legyen reprezentálva.
+Erre a műveletre az OpenCV szolgáltat implementált megoldást, aminek használata nagyon praktikus.
+
+A \figref{eqPreproc} ábra mutatja \figref{needToPreproc} képeit hisztogram kiegyenlítés után.
+Meg kell jegyezni, hogy az eljárás nem általános megoldás: nem veszi figyelembe a kép lokális tulajdonságait.
+A homogén fényerőeloszlás eléréséhez régiónként kellene vizsgálni a képet és egy közös átlagos értékhez igazítani a lokális átlagot.
+
 \begin{figure}[ht!]
 	\begin{subfigure}{.5\textwidth}
 	  \centering
@@ -82,6 +89,8 @@ A szűrőnek 4 lehetséges paramétere van: a két Gauss szűrő kernel mérete 
 	\label{fig:eqPreproc}
 \end{figure}
 
+Egy ilyen, lokális tulajdonságokat figyelembe vevő eljárás implementálása szerepel a jövőbeli célok között.
+A hisztogram kiegyenlítés használatának egyedüli oka az elfogadható eredmény előállítása és egyszerűsége.
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Egyéb előfeldolgozás}\label{sect:miscPreproc}
@@ -99,7 +108,7 @@ Az első indok a futásidő csökkentése volt.
 Gyorsabb volt a kisebb méretű képeken kipróbálni az egyes algoritmus változatokat, mint a teljes elérhető felbontáson.
 
 A másik ok pedig a skálázás diszparitásképre gyakorolt hatásának vizsgálata.
-Az volt a megfigyelés, hogy a felére csökkentett méretű képen (640*480) simább, kevésbé zajos a kimenet.
+Az volt a megfigyelés, hogy a felére csökkentett méretű képen (640 x 480) simább, kevésbé zajos a kimenet.
 Ennek oka az volt, hogy azonos méretű minta nagyobb relatív méretet fedett le a képből, ezért több információt hordozott.
 Ehhez adódott még hozzá az a hatás, hogy a felbontás felezése afféle aluláteresztő szűrőként viselkedik.
 
@@ -125,17 +134,63 @@ A Gauss szűrő paraméterei a kernel méret és az eloszlás szórása.
 \section{Diszparitás meghatározás}\label{sect:Depthproc}
 %-----------------------------------------------------------------------------------------------
 
+Az algoritmus futásának ezen szakaszában történik a lényegi 3D információ visszanyerése.
+A referenciakép és az adatkép mintái relatív helyzetének a meghatározása a cél.
+Ezen probléma megoldására 2 módszer terjedt el: leírók használata vagy mintaillesztés.
+
+A leírókat használó eljárások elemezik a képeket, majd nagy bizonyossággal meghatározható jellegzetes pontokat keresnek.
+Ezekből általában kevés van egy képen.
+Az ilyen algoritmusok úgynevezett ritka pontfelhős szolgáltatnak kimenetként.
+
+A másik elterjedt út a mintaillesztés használata.
+Itt a képek kis régióiból (néhány pixeles környezet) mintát veszünk, és ezeket keressük a másik képen.
+Itt az egyezés megbízhatósága jóval kisebb, de cserébe sok adatpontot (sűrű pontfelhő) kapunk.
+Ezt a megoldást alkalmaztam a fejlesztés során.
+
+A mintaillesztéses eljárás akkor alkalmazható hatékonyan, ha a képek \emph{rektifikáltak}.
+Ez a feltétel a Kinect esetén az eszköz felépítésénél fogva teljesül.
+
 %-----------------------------------------------------------------------------------------------
 \section{Utófeldolgozás}\label{sect:Postproc}
 %-----------------------------------------------------------------------------------------------
 
+Az utófeldolgozási fázisban az előállított diszparitáskép manipulációja történik.
+Alkalmazhatóak zajszűrő eljárások, de akár lehet szó egyszerű vizualizációról is.
+Érdemi 3D feldolgozás nem történik itt, csak az eredmény kisebb-nagyobb formázása.
+
+A munka nagy részében kizárólag vizualizáció történt ebben a fázisba.
+Folytattam kísérleteket medián szűrő alkalmazásával is.
+Ennek (jelen féléves projekt keretei között) nincs gyakorlati jelentősége: még a diszparitás számítási fázisban próbáltam a zajszűrést elvégezni.
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Medián szűrő}\label{sect:median}
 %-----------------------------------------------------------------------------------------------
 
+A medián szűrő nem lineáris szűrő.
+Az úgynevezett rang szűrők közé tartozik.
+Működési elve: a kernelben található képpontokat érték szerint sorba rendezi, majd a kernelközéppont értékét helyettesíti az elemek mediánjával.
+Kiválóan alkalmas pontszerű hibák szűrésére.
+
+A fent említett tulajdonsága miatt merült fel a használata.
+A kezdeti próbálkozások kimeneti képei ilyen jellegű hibával terheltnek látszottak.
+Mint további vizsgálat alapján kiderült, a hibák nem pontszerűek, túl nagy a kiterjedésük ahhoz, hogy ésszerű kernelméretű mediánszűrő kezelni tudja őket.
+Ilyen jellegű zajjal terhelt képet mutat a \figref{medianReason} ábra.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.6\linewidth]{figures/medianreason.png}
+	\caption{Zajjal terhelt kimeneti kép}
+	\label{fig:medianReason}
+\end{figure}
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Vizualizáció}\label{sect:visual}
 %-----------------------------------------------------------------------------------------------
 
+Ez a lépés arra szolgál, hogy könnyen átlátható formában jelenítse meg a diszparitást.
+Nyers formájukban a kapott értékek igen alacsonyak és monokromatikusak.
+Ez egy alacsony átlagos intenzitású, szürkeárnyalatos képet eredményez.
+Ez a feldolgozási szakasz interpolálja a kapott számértékeket RGB képre.
+A képen a közeli pontok vörössel, a távoliak kékkel vannak jelölve, köztük pedig folytonosan változik a szín a diszparitás nagyságával arányosan.
+Fontos megjegyezni, hogy ez \emph{nem mélységkép}, csak a diszparitás megjelenítése.
+Ezen eljárás kimenete a \figref{medianReason} ábra is.
