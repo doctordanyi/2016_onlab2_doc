@@ -151,6 +151,68 @@ A mintaillesztéses eljárás akkor alkalmazható hatékonyan, ha a képek \emph
 Ez a feltétel a Kinect esetén az eszköz felépítésénél fogva teljesül.
 
 %-----------------------------------------------------------------------------------------------
+\subsection{Mintaillesztés}\label{sect:templateMatch}
+%-----------------------------------------------------------------------------------------------
+
+A mintaillesztési algoritmus tárgyalásánál a legfontosabb paraméter az illeszkedés jóságát leíró költségfüggvény.
+Ezek összehasonlítását és elemzését itt mellőzöm, erről szólt az előző féléves kutatásom.
+Itt csak a tapasztalatok által legjobbnak ítélt és azóta használt módszert mutatom be röviden.
+
+A legjobb találati arányt a \emph{normált keresztkorrelációs együtthatót} maximalizáló eljárás adta.
+Ennek a számítása költségesebb, mint az általában használt, hibát minimalizáló eljárások (pl. SAD\footnote{Sum of Absolute Differences}).
+
+A költségfüggvény matematika leírása \eqref{NormedCCOEFF} és \eqref{aux_T_I}, ahol $R(x,y)$ jelöli az $(x,y)$ pontra való illeszkedés jóságát.
+$T(x,y)$ a referenciakép, $I(x,y)$ pedig az adatkép megfelelő képpontját jelöli.
+
+\begin{equation}\label{eq:NormedCCOEFF}
+	\begin{split}
+		R(x,y) & = \frac{\sum_{x', y'} (T'(x', y') * I'(x+x', y+y')}{\sqrt{\sum_{x', y'} (T'(x', y')^2 * I'(x+x', y+y')^2)})}
+	\end{split}
+\end{equation}
+
+\begin{equation}\label{eq:aux_T_I}
+	\begin{split}
+		T'(x',y') & = T(x',y') - \frac{1}{w*h} * \sum_{x'', y''} T(x'',y'') \\
+		I'(x+x',y+y') & = I(x+x',y+y') - \frac{1}{w*h} * \sum_{x'',y''} I(x+x'',y+y'')
+	\end{split}
+\end{equation}
+
+%-----------------------------------------------------------------------------------------------
+\subsection{Paraméterek}\label{sect:params}
+%-----------------------------------------------------------------------------------------------
+
+A költségfüggvényen kívül számos egyéb paraméter is befolyásolja a diszparitás sikeres meghatározását.
+Ezek inkább az implementációhoz kötődő, a gyakorlatban jelentős jellemzők.
+
+Programozási szemszögből nézve az algoritmus a következőként néz ki.
+Mintát kell venni az adatképből, és megkeresni a referenciaképen a legjobban illeszkedő részt.
+Ezt a kép minden részére meg kell tenni.
+A két képen észlelt pozíciók különbsége a diszparitás.
+Annyi könnyebbség adódik, hogy a képek \emph{rektifikáltak}, azaz tudjuk, hogy csak x irányban mozdult el a minta.
+Az illeszkedési minőséget minden eltolásra ki kell számolni, ami nagyon számításigényes, lassú művelet.
+
+Optimalizálási céllal nem a teljes tartományon keressük az illeszkedést, hanem feltesszük, hogy egy adott határon belül marad a diszparitás.
+Ezt határozza meg az \emph{ablakméret}, amit átlátszó téglalap jelöl a \figref{sizeParams} ábrán.
+
+A másik fontos, méretekkel összefüggő állandó a minta mérete.
+Ezt a régiót csúsztatja végig az algoritmus a képen és keresi a referencia képen.
+A \figref{sizeParams} ábrán ez a kék négyzettel jelölt tartomány.
+Hasonlóan az ablakmérethez, itt is szem előtt kell tartani a teljesítményre gyakorolt hatást.
+A kis minta méret rontja az egyedi jelleget, hamis találatokat eredményezhet.
+Azonban nem is növelhető tetszőlegesen, mert akkor már túl nagy lesz az eltérés a referencia és az adat között (itt a kép tartalma okozza a hibát).
+
+Az ablak méretnek legalább el kell érnie a minta méretét.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figures/sizeParams.png}
+	\caption{Méret paraméterek}
+	\label{fig:sizeParams}
+\end{figure}
+
+Fontos megjegyezni, hogy ezek azok a paraméterek, amik az összes feldolgozási stratégiára jellemzők függetlenül attól, hogy figyelembe vesszük-e a lokális képi struktúrát.
+
+%-----------------------------------------------------------------------------------------------
 \section{Utófeldolgozás}\label{sect:Postproc}
 %-----------------------------------------------------------------------------------------------
 
