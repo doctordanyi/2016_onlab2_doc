@@ -48,16 +48,78 @@ A következőkben ismertetem a kipróbált feldolgozási lépéseket.
 %-----------------------------------------------------------------------------------------------
 
 Az első ígéretes irány a felüláteresztő szűrés volt.
-Ennek egy lehetséges implementáció a DoG eljárás.
+Ennek egy lehetséges implementáció a DoG algoritmus.
+A képet két különböző Gauss szűrővel elmossuk, majd ezeket kivonjuk egymásból.
+Gyakran használt szűrő, főleg éldetektálásnál hasznos.
+Az én választásom is ezért esett rá: az információ ugyan úgy megtalálható a vetített pontok kontúrjaiban, mint magukban a pontokban.
+Képletszerűen \eqref{dog} írja le a műveletet. 
+
+\begin{equation}
+dst = gauss(src, \sigma_1) - gauss(src, \sigma_2)
+\label{eq:dog}
+\end{equation}
+
+A szűrőnek 4 lehetséges paramétere van: a két Gauss szűrő kernel mérete valamint szórása.
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Hisztogram kiegyenlítés}\label{sect:histNorm}
 %-----------------------------------------------------------------------------------------------
 
+\begin{figure}[ht!]
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=0.9\linewidth]{figures/eq_ref.png}
+	  \caption{feldolgozott referencia kép}
+	  \label{fig:eqRef}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=0.9\linewidth]{figures/eq_data.png}
+	  \caption{feldolgozott adat kép}
+	  \label{fig:eqData}
+	\end{subfigure}
+	\caption{Hisztogram kiegyenlítés}
+	\label{fig:eqPreproc}
+\end{figure}
+
+
 %-----------------------------------------------------------------------------------------------
-\subsection{Egyéb előfeldolgozás}\label{sect:scale}
+\subsection{Egyéb előfeldolgozás}\label{sect:miscPreproc}
 %-----------------------------------------------------------------------------------------------
 
+Az itt tárgyalt eljárások lényegileg különböznek az eddigiektől.
+A fenti algoritmusok a fényességkiegyenlítést szolgálják, míg az alább következők egyéb célokkal kerültek felhasználásra.
+
+%-----------------------------------------------------------------------------------------------
+\subsubsection{Uniform skálázás}\label{sect:scale}
+%-----------------------------------------------------------------------------------------------
+
+A fejlesztés során két okból került elő ez az egyszerű feldolgozási lépés.
+Az első indok a futásidő csökkentése volt.
+Gyorsabb volt a kisebb méretű képeken kipróbálni az egyes algoritmus változatokat, mint a teljes elérhető felbontáson.
+
+A másik ok pedig a skálázás diszparitásképre gyakorolt hatásának vizsgálata.
+Az volt a megfigyelés, hogy a felére csökkentett méretű képen (640*480) simább, kevésbé zajos a kimenet.
+Ennek oka az volt, hogy azonos méretű minta nagyobb relatív méretet fedett le a képből, ezért több információt hordozott.
+Ehhez adódott még hozzá az a hatás, hogy a felbontás felezése afféle aluláteresztő szűrőként viselkedik.
+
+%-----------------------------------------------------------------------------------------------
+\subsubsection{Gauss szűrés}\label{sect:gaussian}
+%-----------------------------------------------------------------------------------------------
+
+A Gauss szűrő aluláteresztő jellegű, simítja a képet.
+Képfeldolgozási feladatokban gyakran alkalmazzák.
+A Gauss kernel elemei egy kétdimenziós normális eloszlás mintái.
+Jellemzően 3x3-as vagy 5x5-ös kernelméret a használatos (ez a kép felbontásától erősen függ).
+
+Az két dimenziós eloszlás \eqref{gauss2d} alapján számítható.
+\begin{equation}
+G_0(x,y) = A e^{\frac{-(x-\mu_x)^2}{2 \sigma_x^2}+\frac{-(y-\mu_y)^2}{2 \sigma_y^2}}
+\label{eq:gauss2d}
+\end{equation}
+
+A Gauss szűrő paraméterei a kernel méret és az eloszlás szórása.
+Általában $\sigma_x$ és $\sigma_y$ megegyezik és négyzetes kernellel dolgozunk, de ettől természetesen el lehet térni.
 
 %-----------------------------------------------------------------------------------------------
 \section{Diszparitás meghatározás}\label{sect:Depthproc}
