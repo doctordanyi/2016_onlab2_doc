@@ -2,6 +2,22 @@
 \chapter{Teszt platform}\label{sect:Software}
 %-----------------------------------------------------------------------------------------------
 
+A munka kutatási jellege miatt fontos volt egy rugalmas, moduláris teszt platform létrehozása.
+A programozáshoz a C\# nyelvet választottam a magas szintű funkciói miatt: igen fontos volt a gyors prototípus fejlesztés lehetősége.
+A képfeldolgozási feladatokhoz az OpenCV 3 könyvtárat használtam, az EmguCV wrapperen keresztül.
+
+Amint már többször hangsúlyozásra került, a modularitás és rugalmasság fontos szempont volt a keretrendszer tervezése során.
+Ezt a rugalmasságot úgy értem el, hogy feldolgozási sorokba rendeztem az elvégzendő képfeldolgozási feladatokat.
+
+Három sor került definiálásra az előző fejezetben ismertetett struktúrát szem előtt tartva.
+Egy \emph{előfeldolgozási} sor, egy \emph{diszparitás számító} sor és egy \emph{utófeldolgozási} sor.
+Köztük éles természetes határvonalként adódik a bemeneti argumentumaik mibenléte.
+Az előfeldolgozó sor 1 képen értelmezett műveletek hajt végre a referencia- és az adatképen.
+A diszparitás számító sor 2 képen operál és kimenetként egyet szolgáltat.
+Az utófeldolgozó pedig ismét egy képen értelmezett műveleteket támogat, amiket a diszparitásképen hajt végre.
+
+
+
 %-----------------------------------------------------------------------------------------------
 \section{Programozói interfész}\label{sect:ProgInterface}
 %-----------------------------------------------------------------------------------------------
