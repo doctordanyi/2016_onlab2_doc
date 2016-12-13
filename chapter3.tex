@@ -75,8 +75,43 @@ Alább pedig két lehetőséget mutatok be paraméterek meghatározására.
 \subsection{Kumulált korreláció}\label{sect:CumCorr}
 %-----------------------------------------------------------------------------------------------
 
+Az diszparitás meghatározásánál az illeszkedési függvény maximumhelyei közül kell választanunk.
+Általában az legnagyobb értékű maximumhely adja a helyes eredményt, ám vannak kivételek.
+A \figref{matchResult} ábra egy lokális régió pixeleire kiszámolt illeszkedési függvényeket mutatja.
+Kék sáv jelöli az első maximumot, fekete sávok a többi lokális maximumot. 
+\begin{wrapfigure}{l}{0.35\textwidth}
+	\centering
+	\includegraphics[width=0.35\textwidth]{figures/matchresult.png}
+	\caption{Illeszkedési függvények}
+	\label{fig:matchResult}
+\end{wrapfigure}
+Az ábrázolt régió egy sík felületet ábrázol, tehát konstans diszparitást kellene látnunk.
+Az ábrán megfigyelhető, hogy ha nem az első maximumot választottuk volna, a helyes eredmény is megkapható.
 
+A megoldandó probléma: választanunk kell a maximumok között.
+Erre egy lehetséges megoldás a kumulált korreláció vizsgálata.
+Lényege, hogy az egyes illeszkedési függvényeket összeadjuk, és az összegen is elvégezzük a maximumkeresést.
+Ekkor kapunk néhány diszparitás értéket, ahol több adatpont is elfogadható illeszkedést mutat.
+Ezeket az értékeket felhasználhatjuk, mint klaszterek.
+A két legmagasabb kumulált korrelációval rendelkező klaszterközéppontot fogadjuk el, mint modell paraméterek.
+
+Hátra van még a töréspont meghatározása.
+Ehhez minden illeszkedési függvényen ki kell számolnunk a két választott klaszterközépponthoz legjobban illeszkedő maximumok hibáit.
+Így kapunk 2 hiba függvényt.
+Az egyik az él előtti szakaszon, a másik az él utáni szakaszon fog kis hibát mutatni.
+Optimális esetben található egy pont, ahol az egyik függvény egy adott határ alá csökken, míg a másik fölé.
+Ez lesz a modell 3. paramétere, az él pozíciója.
+
+A választott diszparitás pedig mindig a modell paraméterhez legközelebbi maximum: \emph{nem} helyettesítjük a klaszterközépponttal a mért értéket.
+
+Ennek a módszernek megvannak a korlátai: nem garantált, hogy az összegzett illeszkedés maximumai a helyes eredményt adják.
+Ekkor egy hamis átlagérték közé csoportosulhatnak az eredmények, aminek következtében akár még romolhat is a kapott diszparitáskép minősége.
 
 %-----------------------------------------------------------------------------------------------
 \subsection{RANSAC}\label{sect:ransac}
 %-----------------------------------------------------------------------------------------------
+
+A RANSAC algoritmus működésének leírását itt mellőzöm, működése közismert.
+Munkám során az előző pont végén leírt jelenség elleni védekezésként merült fel a használata.
+A véletlenszerűen választott paraméterek itt a klaszterközéppontok, amik a talált maximumok közül kerülnek ki.
+Minden iterációban elvégezzük a modell hibájának számítását, majd a legjobban illeszkedőt fogadjuk el megoldásnak.
