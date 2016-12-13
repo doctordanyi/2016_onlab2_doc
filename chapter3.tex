@@ -12,8 +12,8 @@ Nem minden modell került megvalósításra, néhol a vizsgálati eredményekbő
 \section{Modellek}\label{sect:Models}
 %-----------------------------------------------------------------------------------------------
 
-Ezen fejezet alapfeltevése, hogy a diszparitás kis régiókon belül nem változik tetszőleges.
-Kis régió fogalom nagyon szubjektív, jelen állás szerint kísérletileg meghatározott fogalom.
+Ezen fejezet alapfeltevése, hogy a diszparitás kis régiókon belül nem változhat tetszőlegesen.
+A kis régió nagyon szubjektív, jelen állás szerint kísérletileg meghatározott fogalom.
 A továbbiak a kép 16 pixel széles tartományát értem ezalatt.
 
 Már korábban is feltettük\footnote{Az ablakméret megválasztásánál}, hogy nem számítunk tetszőlegesen nagy elmozdulásokra.
@@ -25,7 +25,7 @@ Két esetet vizsgáltam a féléves munka során: lineáris modell és 2 konstan
 \subsection{Lineáris modell}\label{sect:linearModel}
 %-----------------------------------------------------------------------------------------------
 
-A lineáris modell esetében az volt a feltételezés, hogy diszparitás lineárisan változik rövid szakaszon.
+A lineáris modell esetében az volt a feltételezés, hogy a diszparitás lineárisan változik rövid szakaszon.
 Ekkor a modell \eqref{linModel} alakú.
 \begin{equation}
 y = a*x + b
@@ -64,19 +64,19 @@ Ha a két diszparitás paraméter eltérése igen kicsi (1-2 pixel), akkor 1 par
 Az előző féléves munkám során a rekonstrukció eredményeként mindig a legjobb illeszkedési mutatóval rendelkező pont lett elfogadva.
 A mostani módszerek ettől gyökeresen különböznek.
 Az első maximumok gyakran hibás egyezés következményei, zajosak lehetnek.
-Az vizualizált illeszkedési gráfokat vizsgálva szembetűnik, hogy sok esetben az első maximum ugyan hibás, de a helyes eredmény is detektálható lenne az adatokból.
+Az vizualizált illeszkedési grafikonokat vizsgálva szembetűnik, hogy sok esetben az első maximum ugyan hibás, de a helyes eredmény is detektálható lenne az adatokból.
 Itt jön a képbe ezen fejezet tárgya: a lokális környezet.
 Ha nem csak az első maximumot tároljuk, hanem az első néhányat, a szomszédos pontok diszparitása alapján kiválaszthatjuk a legvalószínűbb egyezést közülük.
 
-Ezt a választást segítik az feljebb vázolt modellek.
-Alább pedig két lehetőséget mutatok be paraméterek meghatározására.
+Ezt a választást segítik a feljebb vázolt modellek.
+Alább pedig két lehetőséget mutatok be a paraméterek meghatározására.
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Kumulált korreláció}\label{sect:CumCorr}
 %-----------------------------------------------------------------------------------------------
 
 Az diszparitás meghatározásánál az illeszkedési függvény maximumhelyei közül kell választanunk.
-Általában az legnagyobb értékű maximumhely adja a helyes eredményt, ám vannak kivételek.
+Általában a legnagyobb értékű maximumhely adja a helyes eredményt, ám vannak kivételek.
 A \figref{matchResult} ábra egy lokális régió pixeleire kiszámolt illeszkedési függvényeket mutatja.
 Kék sáv jelöli az első maximumot, fekete sávok a többi lokális maximumot. 
 \begin{wrapfigure}{l}{0.35\textwidth}
@@ -86,7 +86,7 @@ Kék sáv jelöli az első maximumot, fekete sávok a többi lokális maximumot.
 	\label{fig:matchResult}
 \end{wrapfigure}
 Az ábrázolt régió egy sík felületet ábrázol, tehát konstans diszparitást kellene látnunk.
-Az ábrán megfigyelhető, hogy ha nem az első maximumot választottuk volna, a helyes eredmény is megkapható.
+Az ábrán megfigyelhető, hogy ha nem az első maximumot választottuk volna, a helyes eredményt is megkaphattuk volna.
 
 A megoldandó probléma: választanunk kell a maximumok között.
 Erre egy lehetséges megoldás a kumulált korreláció vizsgálata.
@@ -99,7 +99,7 @@ Hátra van még a töréspont meghatározása.
 Ehhez minden illeszkedési függvényen ki kell számolnunk a két választott klaszterközépponthoz legjobban illeszkedő maximumok hibáit.
 Így kapunk 2 hiba függvényt.
 Az egyik az él előtti szakaszon, a másik az él utáni szakaszon fog kis hibát mutatni.
-Optimális esetben található egy pont, ahol az egyik függvény egy adott határ alá csökken, míg a másik fölé.
+Optimális esetben található egy pont, ahol az egyik függvény egy adott határ alá csökken, míg a másik fölé kerül.
 Ez lesz a modell 3. paramétere, az él pozíciója.
 
 A választott diszparitás pedig mindig a modell paraméterhez legközelebbi maximum: \emph{nem} helyettesítjük a klaszterközépponttal a mért értéket.
